@@ -103,6 +103,28 @@ static void slider_cb(GtkRange *range, CustomData *data)
                             (gint64)(value * GST_SECOND));
 }
 
+// DEBUG - TEST
+static void video_window_cb(GtkDrawingArea *window, GdkEventButton *event, CustomData *data)
+{
+    g_print("BUTTON PRESS\n");
+
+    if (event->button != GDK_BUTTON_PRIMARY)
+        return;
+
+    // if (event->type == GDK_2BUTTON_PRESS)
+    //     g_print("GDK_2BUTTON_PRESS\n");
+
+    if (data->state == GST_STATE_PLAYING)
+    {
+        gst_element_set_state(data->playbin, GST_STATE_PAUSED);
+    }
+    else if (data->state == GST_STATE_PAUSED)
+    {
+        gst_element_set_state(data->playbin, GST_STATE_PLAYING);
+    }
+}
+// DEBUG
+
 /* This creates all the GTK+ widgets that compose our application, and registers the callbacks */
 static void create_ui(CustomData *data)
 {
@@ -120,6 +142,10 @@ static void create_ui(CustomData *data)
     gtk_widget_set_double_buffered(video_window, FALSE);
     g_signal_connect(video_window, "realize", G_CALLBACK(realize_cb), data);
     g_signal_connect(video_window, "draw", G_CALLBACK(draw_cb), data);
+    // DEBUG - TEST
+    gtk_widget_set_events(video_window, gtk_widget_get_events(video_window) | GDK_BUTTON_PRESS_MASK);
+    g_signal_connect(video_window, "button-press-event", G_CALLBACK(video_window_cb), data);
+    // DEBUG
 
     play_button = gtk_button_new_from_icon_name("media-playback-start", GTK_ICON_SIZE_SMALL_TOOLBAR);
     g_signal_connect(G_OBJECT(play_button), "clicked", G_CALLBACK(play_cb), data);
